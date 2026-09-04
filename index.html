@@ -889,4 +889,201 @@ function toggleAudio(btn){
     btn.querySelector('.icon-play').hidden=false;btn.querySelector('.icon-pause').hidden=true;
   }
 }
+</script><style>
+#mplayer{
+  position:fixed;bottom:0;left:0;right:0;z-index:200;
+  background:rgba(8,2,14,.88);backdrop-filter:blur(18px);
+  border-top:1px solid rgba(200,25,62,.2);
+  display:grid;grid-template-columns:auto 1fr auto;align-items:center;gap:1.2rem;
+  padding:.9rem 2rem;
+  transform:translateY(0);transition:transform .4s cubic-bezier(.4,0,.2,1);
+}
+#mplayer.hidden{transform:translateY(100%)}
+.mp-toggle{position:absolute;top:-32px;right:2rem;background:rgba(8,2,14,.88);border:1px solid rgba(200,25,62,.2);border-bottom:none;padding:.3rem .9rem .1rem;border-radius:6px 6px 0 0;cursor:pointer;font-size:.65rem;letter-spacing:.2em;text-transform:uppercase;color:var(--text-muted);transition:color .2s}
+.mp-toggle:hover{color:var(--accent-soft)}
+.mp-controls{display:flex;align-items:center;gap:.6rem}
+.mp-btn{background:none;border:none;cursor:pointer;color:var(--text-muted);transition:color .25s,transform .15s;display:flex;align-items:center;justify-content:center;padding:.2rem;outline:none}
+.mp-btn:hover{color:var(--accent-soft)}
+.mp-btn:active{transform:scale(.88)}
+.mp-btn svg{display:block}
+#mp-play-btn{width:38px;height:38px;border-radius:50%;background:var(--accent-deep);border:none;color:var(--text);transition:background .25s,transform .15s;flex-shrink:0}
+#mp-play-btn:hover{background:var(--accent);transform:scale(1.08)}
+#mp-play-btn svg{width:14px;height:14px;fill:currentColor;margin-left:2px}
+#mp-play-btn .icon-pause{margin-left:0}
+.mp-center{display:flex;flex-direction:column;gap:.4rem;min-width:0}
+.mp-title{font-family:'Cormorant Garamond',serif;font-style:italic;font-weight:400;font-size:1rem;color:var(--text);letter-spacing:.02em;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.mp-subtitle{font-size:.62rem;letter-spacing:.15em;text-transform:uppercase;color:var(--text-faint)}
+.mp-seekrow{display:flex;align-items:center;gap:.7rem}
+.mp-seekbar{flex:1;height:28px;position:relative;cursor:pointer;user-select:none;display:flex;align-items:center}
+.mp-seekbar::before{content:'';position:absolute;inset:auto 0;height:2px;background:rgba(200,25,62,.15);border-radius:2px;top:50%;transform:translateY(-50%)}
+.mp-seek-fill{position:absolute;left:0;top:50%;transform:translateY(-50%);height:2px;width:0%;background:linear-gradient(to right,var(--accent-deep),var(--accent-soft));border-radius:2px;pointer-events:none}
+.mp-seek-thumb{position:absolute;top:50%;transform:translate(-50%,-50%);left:0%;width:11px;height:11px;border-radius:50%;background:var(--accent-soft);border:2px solid rgba(8,2,14,.9);box-shadow:0 0 7px rgba(200,25,62,.7);pointer-events:none;opacity:0;transition:opacity .2s}
+#mplayer:hover .mp-seek-thumb{opacity:1}
+.mp-times{display:flex;justify-content:space-between;font-size:.65rem;font-variant-numeric:tabular-nums;color:var(--text-faint);letter-spacing:.04em}
+.mp-right{display:flex;align-items:center;gap:.8rem;flex-shrink:0}
+.mp-vol-wrap{display:flex;align-items:center;gap:.5rem}
+.mp-vol-icon{cursor:pointer;color:var(--text-muted);transition:color .2s;background:none;border:none;outline:none;padding:0}
+.mp-vol-icon:hover{color:var(--accent-soft)}
+.mp-vol-icon svg{width:16px;height:16px;fill:currentColor;display:block}
+#mp-vol{
+  -webkit-appearance:none;appearance:none;
+  width:90px;height:3px;border-radius:2px;
+  background:rgba(200,25,62,.18);outline:none;cursor:pointer;
+}
+#mp-vol::-webkit-slider-thumb{-webkit-appearance:none;width:13px;height:13px;border-radius:50%;background:var(--accent-soft);border:2px solid rgba(8,2,14,.9);box-shadow:0 0 5px rgba(200,25,62,.5);cursor:pointer}
+#mp-vol::-moz-range-thumb{width:13px;height:13px;border-radius:50%;background:var(--accent-soft);border:2px solid rgba(8,2,14,.9);cursor:pointer}
+@media(max-width:600px){
+  #mplayer{grid-template-columns:auto 1fr;padding:.8rem 1.2rem}
+  .mp-right{display:none}
+  .mp-title{font-size:.9rem}
+}
+</style>
+
+<div id="mplayer">
+  <button class="mp-toggle" id="mp-toggle" type="button">▼ Music</button>
+  <div class="mp-controls">
+    <button type="button" class="mp-btn" id="mp-prev" aria-label="Previous">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 6h2v12H6zm3.5 6l8.5 6V6z"/></svg>
+    </button>
+    <button type="button" id="mp-play-btn" aria-label="Play">
+      <svg class="icon-play" viewBox="0 0 24 24"><path d="M8 5v14l11-7z"/></svg>
+      <svg class="icon-pause" viewBox="0 0 24 24" hidden><path d="M6 19h4V5H6v14zm8-14v14h4V5h-4z"/></svg>
+    </button>
+    <button type="button" class="mp-btn" id="mp-next" aria-label="Next">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M6 18l8.5-6L6 6v12zM16 6v12h2V6h-2z"/></svg>
+    </button>
+  </div>
+
+  <div class="mp-center">
+    <div class="mp-title" id="mp-title">Do I Wanna Know?</div>
+    <div class="mp-seekrow">
+      <div class="mp-seekbar" id="mp-seekbar">
+        <div class="mp-seek-fill" id="mp-seek-fill"></div>
+        <div class="mp-seek-thumb" id="mp-seek-thumb"></div>
+      </div>
+    </div>
+    <div class="mp-times"><span id="mp-cur">0:00</span><span id="mp-dur">—:——</span></div>
+  </div>
+
+  <div class="mp-right">
+    <button type="button" class="mp-vol-icon" id="mp-mute-btn" aria-label="Mute">
+      <svg id="mp-vol-svg" viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/></svg>
+    </button>
+    <input type="range" id="mp-vol" min="0" max="1" step="0.01" value="0.7" aria-label="Volume">
+  </div>
+
+  <audio id="mp-audio" preload="none"></audio>
+</div>
+
+<script>
+(function(){
+  const SONGS = [
+    { src: 'music/DoIwannaknow.mp3', title: 'Do I Wanna Know?' },
+    { src: 'music/freak.mp3',        title: 'Freak' },
+    { src: 'music/Heavencanwait.mp3',title: 'Heaven Can Wait' },
+  ];
+  let idx = 0, playing = false, mpDrag = false;
+
+  const audio     = document.getElementById('mp-audio');
+  const titleEl   = document.getElementById('mp-title');
+  const playBtn   = document.getElementById('mp-play-btn');
+  const prevBtn   = document.getElementById('mp-prev');
+  const nextBtn   = document.getElementById('mp-next');
+  const seekbar   = document.getElementById('mp-seekbar');
+  const seekFill  = document.getElementById('mp-seek-fill');
+  const seekThumb = document.getElementById('mp-seek-thumb');
+  const curEl     = document.getElementById('mp-cur');
+  const durEl     = document.getElementById('mp-dur');
+  const volSlider = document.getElementById('mp-vol');
+  const muteBtn   = document.getElementById('mp-mute-btn');
+  const volSvg    = document.getElementById('mp-vol-svg');
+  const toggle    = document.getElementById('mp-toggle');
+  const player    = document.getElementById('mplayer');
+
+  function fmt(s){if(isNaN(s))return'—:——';const m=Math.floor(s/60),ss=Math.floor(s%60);return m+':'+(ss<10?'0':'')+ss}
+
+  function loadSong(i, autoplay){
+    idx = (i+SONGS.length)%SONGS.length;
+    const s = SONGS[idx];
+    audio.src = s.src;
+    audio.load();
+    titleEl.textContent = s.title;
+    seekFill.style.width = '0%';
+    seekThumb.style.left = '0%';
+    curEl.textContent = '0:00';
+    durEl.textContent = '—:——';
+    if(autoplay){ audio.play().catch(()=>{}); setPlaying(true); }
+    else setPlaying(false);
+  }
+
+  function setPlaying(v){
+    playing = v;
+    playBtn.querySelector('.icon-play').hidden = v;
+    playBtn.querySelector('.icon-pause').hidden = !v;
+  }
+
+  playBtn.addEventListener('click', ()=>{
+    if(audio.src===''){loadSong(0,true);return;}
+    if(audio.paused){audio.play().catch(()=>{});setPlaying(true);}
+    else{audio.pause();setPlaying(false);}
+  });
+  prevBtn.addEventListener('click', ()=>loadSong(idx-1, playing));
+  nextBtn.addEventListener('click', ()=>loadSong(idx+1, playing));
+  audio.addEventListener('ended', ()=>loadSong(idx+1, true));
+
+  audio.addEventListener('loadedmetadata', ()=>{ durEl.textContent=fmt(audio.duration); });
+  audio.addEventListener('timeupdate', ()=>{
+    if(mpDrag||isNaN(audio.duration)||audio.duration===0)return;
+    const pct=(audio.currentTime/audio.duration)*100;
+    seekFill.style.width=pct+'%';
+    seekThumb.style.left=pct+'%';
+    curEl.textContent=fmt(audio.currentTime);
+  });
+
+  function seekTo(clientX){
+    const rect=seekbar.getBoundingClientRect();
+    const pct=Math.max(0,Math.min(1,(clientX-rect.left)/rect.width));
+    if(!isNaN(audio.duration)) audio.currentTime=pct*audio.duration;
+    seekFill.style.width=(pct*100)+'%';
+    seekThumb.style.left=(pct*100)+'%';
+  }
+  seekbar.addEventListener('mousedown',e=>{mpDrag=true;seekTo(e.clientX);});
+  document.addEventListener('mousemove',e=>{if(mpDrag)seekTo(e.clientX);});
+  document.addEventListener('mouseup',()=>{mpDrag=false;});
+  seekbar.addEventListener('touchstart',e=>{mpDrag=true;seekTo(e.touches[0].clientX);},{passive:true});
+  document.addEventListener('touchmove',e=>{if(mpDrag)seekTo(e.touches[0].clientX);},{passive:true});
+  document.addEventListener('touchend',()=>{mpDrag=false;});
+
+  // Volume
+  audio.volume = parseFloat(volSlider.value);
+  volSlider.addEventListener('input',()=>{
+    audio.volume=parseFloat(volSlider.value);
+    audio.muted=false;
+    updateVolIcon();
+  });
+  let wasMuted=false;
+  muteBtn.addEventListener('click',()=>{
+    audio.muted=!audio.muted;
+    if(audio.muted){wasMuted=true;volSlider.value=0;}
+    else{volSlider.value=audio.volume||0.7;}
+    updateVolIcon();
+  });
+  function updateVolIcon(){
+    const v = audio.muted||audio.volume===0;
+    volSvg.innerHTML = v
+      ? '<path d="M16.5 12c0-1.77-1.02-3.29-2.5-4.03v2.21l2.45 2.45c.03-.2.05-.41.05-.63zm2.5 0c0 .94-.2 1.82-.54 2.64l1.51 1.51C20.63 14.91 21 13.5 21 12c0-4.28-2.99-7.86-7-8.77v2.06c2.89.86 5 3.54 5 6.71zM4.27 3L3 4.27 7.73 9H3v6h4l5 5v-6.73l4.25 4.25c-.67.52-1.42.93-2.25 1.18v2.06c1.38-.31 2.63-.95 3.69-1.81L19.73 21 21 19.73l-9-9L4.27 3zM12 4L9.91 6.09 12 8.18V4z"/>'
+      : '<path d="M3 9v6h4l5 5V4L7 9H3zm13.5 3c0-1.77-1.02-3.29-2.5-4.03v8.05c1.48-.73 2.5-2.25 2.5-4.02zM14 3.23v2.06c2.89.86 5 3.54 5 6.71s-2.11 5.85-5 6.71v2.06c4.01-.91 7-4.49 7-8.77s-2.99-7.86-7-8.77z"/>';
+  }
+
+  // Toggle hide/show
+  let shown = true;
+  toggle.addEventListener('click',()=>{
+    shown=!shown;
+    player.classList.toggle('hidden',!shown);
+    toggle.textContent = shown ? '▼ Music' : '▲ Music';
+  });
+
+  // Load first song (no autoplay — browser policies)
+  loadSong(0, false);
+})();
 </script>
