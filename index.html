@@ -50,13 +50,15 @@ section{padding:5.5rem 2rem;max-width:1100px;margin:0 auto}
 }
 @media(max-width:800px){.gallery-grid{grid-template-columns:repeat(3,1fr);grid-auto-rows:140px}}
 @media(max-width:540px){.gallery-grid{grid-template-columns:repeat(2,1fr);grid-auto-rows:130px}}
-.gitem{overflow:hidden;border-radius:4px;border:1px solid var(--border);position:relative;cursor:pointer}
+.gitem{overflow:hidden;border-radius:4px;border:1px solid var(--border);position:relative;cursor:zoom-in;transition:border-color .3s,box-shadow .3s}
 .gitem.featured{grid-column:span 2;grid-row:span 2}
-.gitem::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(5,1,10,.55) 0%,transparent 50%);opacity:0;transition:opacity .35s}
+.gitem::after{content:'';position:absolute;inset:0;background:linear-gradient(to top,rgba(5,1,10,.45) 0%,transparent 55%);opacity:0;transition:opacity .3s;pointer-events:none}
+.gitem::before{content:'';position:absolute;inset:0;box-shadow:inset 0 0 0 2.5px var(--accent-soft);border-radius:4px;opacity:0;transition:opacity .3s;pointer-events:none;z-index:2}
 .gitem:hover::after{opacity:1}
-.gitem:hover{border-color:var(--border-hover)}
-.gitem img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .55s cubic-bezier(.25,.46,.45,.94)}
-.gitem:hover img{transform:scale(1.06)}
+.gitem:hover::before{opacity:1}
+.gitem:hover{border-color:var(--accent);box-shadow:0 0 18px rgba(200,25,62,.35),0 0 40px rgba(200,25,62,.12)}
+.gitem img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s cubic-bezier(.25,.46,.45,.94),filter .3s;cursor:zoom-in}
+.gitem:hover img{transform:scale(1.07);filter:brightness(1.08)}
 
 /* LIGHTBOX */
 .lb{position:fixed;inset:0;background:rgba(5,1,10,.97);z-index:999;display:flex;align-items:center;justify-content:center;opacity:0;pointer-events:none;transition:opacity .3s}
@@ -766,6 +768,14 @@ function draw(){
 draw();
 document.addEventListener('visibilitychange',()=>{if(document.hidden)cancelAnimationFrame(raf);else draw()});
 
+
+// Add expand icon to each gallery item
+document.querySelectorAll('.gitem').forEach(item=>{
+  const ic=document.createElement('div');
+  ic.className='gitem-icon';
+  ic.innerHTML='<svg viewBox="0 0 24 24"><path d="M15 3h6v6M9 21H3v-6M21 3l-7 7M3 21l7-7"/></svg>';
+  item.appendChild(ic);
+});
 // Waveform bars per track
 document.querySelectorAll('.wbars').forEach(wf=>{
   const n = 60;
